@@ -16,21 +16,23 @@ xpcc::hosted::CanUsb canUsb;
  * ToDo:
  * - Parameters:
  *   - Baud Rate
- *   - Port
  * - Send messages to CAN bus
  */
 int
 main(int argc, char **argv)
 {
     ros::init(argc, argv, "talker");
-    ros::NodeHandle n;
+    ros::NodeHandle n("~");
     ros::Publisher can2usb_pub = n.advertise<rca_xpcc_pkg::Can>("can2usb", 1000);
     ros::Rate loop_rate(10);
 
     ROS_DEBUG("Hello CAN2USB");
     
-	if (!canUsb.open("/dev/ttyUSB1", canBusBaudRate)) {
-    	ROS_ERROR("Could not open port");
+    std::string device_string;
+    n.getParam("device_string", device_string); //, std::string("/dev/ttyUSB0"));
+    
+	if (!canUsb.open(device_string, canBusBaudRate)) {
+    	ROS_ERROR_STREAM("Could not open port " << device_string);
     }
 
     while (ros::ok())
