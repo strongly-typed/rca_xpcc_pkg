@@ -8,21 +8,63 @@
 
 xpcc::hosted::CanUsb canUsb;
 
+void
+can2usbCallback(const rca_xpcc_pkg::Can::ConstPtr& msg)
+{
+	ROS_INFO("I got %d with %d bytes", msg->identifier, msg->data.size());
+	
+	// Build xpcc CAN message
+	xpcc::can::Message message;
+	message.setIdentifier(msg->identifier);
+	message.setRemoteTransmitRequest(msg->rtr);
+	message.setExtended(msg->extended);
+	
+	for (std::size_t ii = 0; ii < msg->data.size(); ++ii) {
+		message.data[ii] = msg->data[ii];
+	}
+	message.setLength(msg->data.size());
+	
+	ROS_DEBUG("XPCC Can message is:");
+	ROS_DEBUG("  Identifier = %d", message.getIdentifier());
+	ROS_DEBUG("  RTR        = %d", message.isRemoteTransmitRequest());
+	ROS_DEBUG("  extended   = %d", message.isExtended());
+	ROS_DEBUG("  Length     = %d", message.getLength());
+	ROS_DEBUG("  DATA       = %02x %02x %02x %02x %02x %02x %02x %02x",
+		message.data[0], message.data[1], message.data[2], message.data[3],
+		message.data[4], message.data[5], message.data[6], message.data[7] );
+	
+	// Send
+	if (canUsb.isReadyToSend())
+	{
+		if (canUsb.sendMessage(message)) {
+			ROS_INFO("Send ok");
+		} else {
+			ROS_INFO("Send fail");
+		}
+	}
+	else
+	{
+		ROS_ERROR("Could not send CAN message because canUsb is not ready to send.");
+	}
+}
+
 /**
  * Simple ROS node that uses xpcc CAN2USB parser.
+ * 
+ * It can receive CAN messages on the can2usb/tx topic and sends them to the CAN bus.
+ * Messages on the CAN bus (from any other node) is received and broadcasted on the can2usb/rx topic.
  *
- * ToDo:
- * - Send messages to CAN bus
  */
 int
 main(int argc, char **argv)
 {
-    ros::init(argc, argv, "talker");
+    ros::init(argc, argv, "can2usb");
     ros::NodeHandle n("~");
-    ros::Publisher can2usb_pub = n.advertise<rca_xpcc_pkg::Can>("can2usb", 1000);
+    ros::Publisher can2usb_pub = n.advertise<rca_xpcc_pkg::Can>("rx", 1000);
+    ros::Subscriber can2usb_sub = n.subscribe("tx", 1000, can2usbCallback);
     ros::Rate loop_rate(10);
 
-    ROS_DEBUG("Hello CAN2USB");
+    ROS_INFO("Hello CAN2USB");
     
     std::string device_string;
     n.param("device_string", device_string, std::string("/dev/ttyUSB0"));
