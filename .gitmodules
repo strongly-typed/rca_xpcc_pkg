@@ -1,0 +1,3 @@
+[submodule "ext/xpcc"]
+	path = ext/xpcc
+	url = https://github.com/roboterclubaachen/xpcc.git
