@@ -6,16 +6,12 @@
 #include <xpcc/architecture/interface/can.hpp>
 #include <xpcc/architecture/platform/driver/can/hosted/canusb.hpp>
 
-static constexpr uint32_t canBusBaudRate = 125000;
-
 xpcc::hosted::CanUsb canUsb;
 
 /**
  * Simple ROS node that uses xpcc CAN2USB parser.
  *
  * ToDo:
- * - Parameters:
- *   - Baud Rate
  * - Send messages to CAN bus
  */
 int
@@ -30,6 +26,9 @@ main(int argc, char **argv)
     
     std::string device_string;
     n.param("device_string", device_string, std::string("/dev/ttyUSB0"));
+    
+    int canBusBaudRate;
+    n.param("can_bus_baudrate", canBusBaudRate, 125000);
     
 	if (!canUsb.open(device_string, canBusBaudRate)) {
     	ROS_ERROR_STREAM("Could not open port " << device_string);
