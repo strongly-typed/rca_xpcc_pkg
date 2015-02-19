@@ -29,7 +29,7 @@ main(int argc, char **argv)
     ROS_DEBUG("Hello CAN2USB");
     
     std::string device_string;
-    n.getParam("device_string", device_string); //, std::string("/dev/ttyUSB0"));
+    n.param("device_string", device_string, std::string("/dev/ttyUSB0"));
     
 	if (!canUsb.open(device_string, canBusBaudRate)) {
     	ROS_ERROR_STREAM("Could not open port " << device_string);
