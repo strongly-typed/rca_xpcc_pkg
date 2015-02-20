@@ -112,7 +112,7 @@ add_executable(rca_xpcc_can2usb_node src/rca_xpcc_can2usb_node.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(rca_xpcc_pkg_node rca_xpcc_pkg_generate_messages_cpp)
+add_dependencies(rca_xpcc_can2usb_node rca_xpcc_pkg_gencpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(rca_xpcc_can2usb_node
