@@ -60,7 +60,7 @@ main(int argc, char **argv)
 {
     ros::init(argc, argv, "can2usb");
     ros::NodeHandle n("~");
-    ros::Publisher can2usb_pub = n.advertise<rca_xpcc_pkg::Can>("rx", 1000);
+    ros::Publisher  can2usb_pub = n.advertise<rca_xpcc_pkg::Can>("rx", 1000);
     ros::Subscriber can2usb_sub = n.subscribe("tx", 1000, can2usbCallback);
     ros::Rate loop_rate(10);
 
