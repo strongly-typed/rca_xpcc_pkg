@@ -11,7 +11,7 @@ xpcc::hosted::CanUsb canUsb;
 void
 can2usbCallback(const rca_xpcc_pkg::Can::ConstPtr& msg)
 {
-	ROS_INFO("I got %d with %d bytes", msg->identifier, msg->data.size());
+	ROS_DEBUG("I got %d with %d bytes", msg->identifier, msg->data.size());
 	
 	// Build xpcc CAN message
 	xpcc::can::Message message;
@@ -37,9 +37,9 @@ can2usbCallback(const rca_xpcc_pkg::Can::ConstPtr& msg)
 	if (canUsb.isReadyToSend())
 	{
 		if (canUsb.sendMessage(message)) {
-			ROS_INFO("Send ok");
+			ROS_DEBUG("Send ok");
 		} else {
-			ROS_INFO("Send fail");
+			ROS_ERROR("Sending failed of CAN message with Id 0x%04x", message.getIdentifier());
 		}
 	}
 	else
@@ -62,7 +62,7 @@ main(int argc, char **argv)
     ros::NodeHandle n("~");
     ros::Publisher  can2usb_pub = n.advertise<rca_xpcc_pkg::Can>("rx", 1000);
     ros::Subscriber can2usb_sub = n.subscribe("tx", 1000, can2usbCallback);
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(1000);
 
     ROS_INFO("Hello CAN2USB");
     
