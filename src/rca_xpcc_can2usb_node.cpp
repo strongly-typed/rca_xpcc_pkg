@@ -69,10 +69,31 @@ main(int argc, char **argv)
     std::string device_string;
     n.param("device_string", device_string, std::string("/dev/ttyUSB0"));
     
-    int canBusBaudRate;
-    n.param("can_bus_baudrate", canBusBaudRate, 125000);
+    int serialBaudrate;
+    n.param("serial_baudrate", serialBaudrate, int(115000));
     
-	if (!canUsb.open(device_string, canBusBaudRate)) {
+    int canBitrate;
+    n.param("can_bitrate", canBitrate, int(125000));
+    
+    // Map canBitrate
+    xpcc::Can::Bitrate canBitrateEnum;
+    switch (canBitrate)
+    {
+		case   10000:canBitrateEnum = xpcc::Can::kBps10;  ROS_INFO("Setting CAN bitrate to 10kbps"); break;
+		case   20000:canBitrateEnum = xpcc::Can::kBps20;  ROS_INFO("Setting CAN bitrate to 20kbps"); break;
+		case   50000:canBitrateEnum = xpcc::Can::kBps50;  ROS_INFO("Setting CAN bitrate to 50kbps"); break;
+		case  100000:canBitrateEnum = xpcc::Can::kBps100; ROS_INFO("Setting CAN bitrate to 100kbps"); break;
+		case  125000:canBitrateEnum = xpcc::Can::kBps125; ROS_INFO("Setting CAN bitrate to 125kbps"); break;
+		case  250000:canBitrateEnum = xpcc::Can::kBps250; ROS_INFO("Setting CAN bitrate to 250kbps"); break;
+		case  500000:canBitrateEnum = xpcc::Can::kBps500; ROS_INFO("Setting CAN bitrate to 500kbps"); break;
+		case 1000000:canBitrateEnum = xpcc::Can::MBps1;   ROS_INFO("Setting CAN bitrate to 1Mbps"); break;
+		default:
+			ROS_ERROR("CAN bitrate %d is unsupported.", canBitrate);
+			ROS_ERROR("Supported CAN bitrates are 10000, 20000, 50000, 100000, 125000, 250000, 500000, 1000000 is supported.");
+			ros::shutdown();
+	}
+
+	if (!canUsb.open(device_string, serialBaudrate, canBitrateEnum)) {
     	ROS_ERROR_STREAM("Could not open port " << device_string);
     }
 
